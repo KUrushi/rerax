@@ -12,7 +12,7 @@ class SASRecEmbedding(nnx.Module):
         *,
         rngs: nnx.Rngs,
     ):
-        self.embed = nnx.Embed(num_of_items, hidden_size, rngs=rngs)
+        self.embed = nnx.Embed(num_items, hidden_size, rngs=rngs)
         self.pos_embed = nnx.Param(rngs.normal((max_len, hidden_size)))
         self.dropout = nnx.Dropout(dropout_rate, rngs=rngs)
 

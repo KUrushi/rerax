@@ -51,15 +51,6 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
 # nnx.jitは関数の引数をJAXに持ち込む
 # nnx.Moduleを継承することで、`Trainer`クラスは自動的にJAXが扱えるオブジェクト(pytree)として登録して追跡できるようにする
 class Trainer(BaseTrainer):
-    def __init__(
-        self,
-        model: nnx.Module,
-        task: Task,
-        optimizer: nnx.Optimizer,
-        tracker: BaseTracker | None = None,
-    ):
-        super().__init__(model=model, task=task, optimizer=optimizer, tracker=tracker)
-
     @nnx.jit
     def train_step(
         self,
