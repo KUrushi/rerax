@@ -62,7 +62,7 @@ class SASRecBlock(nnx.Module):
         h = self.ln2(x)
         h = self.ffn_intermediate(h)
         h = nnx.gelu(h)
-        h = self.dropout2(h, deterministic=not training)
         h = self.ffn_output(h)
+        h = self.dropout2(h, deterministic=not training)
         x = x + h
         return x
