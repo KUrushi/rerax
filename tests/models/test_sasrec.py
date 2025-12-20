@@ -44,7 +44,8 @@ class TestSASRec:
 
         logits1 = model(batch, training=False)
         logits2 = model(batch, training=False)
-        return jnp.array_equal(logits1, logits2)
+        assert jnp.array_equal(logits1, logits2)
+
 
     def test_create_causal_mask(self):
         """
