@@ -26,7 +26,7 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = "src"
-addopts = "-v"
+addopts = "-v --import-mode=importlib"
 
 [tool.ruff]
 # Blackのデフォルトと同じ88文字（必要に応じて変更してください）
