@@ -1,0 +1,52 @@
+[project]
+name = "rerax"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "KUrushi", email = "delver.rasping_08@icloud.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "grain>=0.2.13",
+    "jax-ai-stack>=2025.4.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ipython>=8.37.0",
+    "isort>=7.0.0",
+    "pytest>=9.0.2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = "src"
+addopts = "-v"
+
+[tool.ruff]
+# Blackのデフォルトと同じ88文字（必要に応じて変更してください）
+line-length = 88
+
+[tool.ruff.lint]
+# isort (I) のルールを有効化します
+select = ["I"]
+
+# インポート順序の自動修正を許可します
+fixable = ["ALL"]
+
+[tool.ruff.lint.isort]
+# isortのprofile = "black" 相当の挙動はデフォルトですが、
+# 行分割の挙動などを明示的に指定したい場合はここに書きます。
+# 通常はこのセクションが空でもBlack互換で動きます。
+
+[tool.ruff.format]
+# Blackと同様のスタイルでフォーマットします
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

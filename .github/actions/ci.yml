@@ -1,0 +1,33 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run pytest with uv
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 修正ポイント 1: setup-uv の引数で python-version を指定
+      # これにより uv python install コマンドを個別に書く必要がなくなります
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      # 修正ポイント 2: --locked オプションを追加
+      # uv.lock と pyproject.toml が同期していることを保証します（CI でのベストプラクティス）
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run pytest
+        run: uv run pytest
