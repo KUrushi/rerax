@@ -3,7 +3,6 @@ from typing import Any
 
 import chex
 from flax import nnx
-from jax._src.lax.control_flow.conditionals import _cond_partial_eval_custom
 
 from rerax.tasks.base import Task
 
@@ -56,7 +55,7 @@ class Trainer(BaseTrainer):
 
         grad_fn = nnx.value_and_grad(loss_fn, has_aux=True)
         (loss, outputs), grads = grad_fn(self._model)
-        self._optimizer.update(grads)
+        self._optimizer.update(self._model, grads=grads)
 
         metrics = self._task.compute_metrics(
             outputs,

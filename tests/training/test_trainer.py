@@ -1,8 +1,8 @@
-import pytest
 import jax
 import jax.numpy as jnp
-from flax import nnx
 import optax
+import pytest
+from flax import nnx
 
 from rerax.tasks.base import Task
 from rerax.training.trainer import Trainer
@@ -32,7 +32,7 @@ class TestTrainer:
         rngs = nnx.Rngs(0)
         model = LinearModel(rngs)
         task = MSETask()
-        optimizer = nnx.Optimizer(model, optax.sgd(learning_rate=0.1))
+        optimizer = nnx.Optimizer(model, optax.sgd(learning_rate=0.1), wrt=nnx.Param)
 
         trainer = Trainer(model=model, task=task, optimizer=optimizer)
 
@@ -83,7 +83,7 @@ class TestTrainer:
         rngs = nnx.Rngs(0)
         model = LinearModel(rngs)
         task = MSETask()
-        optimizer = nnx.Optimizer(model, optax.sgd(learning_rate=0.1))
+        optimizer = nnx.Optimizer(model, optax.sgd(learning_rate=0.1), wrt=nnx.Param)
 
         trainer = Trainer(model=model, task=task, optimizer=optimizer)
 
@@ -142,7 +142,7 @@ class TestTrainerFit:
         model = LinearModel(rngs)
         task = MSETask()
 
-        optimizer = nnx.Optimizer(model, optax.sgd(learning_rate=0.01))
+        optimizer = nnx.Optimizer(model, optax.sgd(learning_rate=0.01), wrt=nnx.Param)
         trainer = Trainer(model, task, optimizer)
 
         X = jnp.arange(1, 5, dtype=jnp.float32).reshape((4, 1))

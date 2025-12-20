@@ -1,7 +1,8 @@
 import jax
+import jax.numpy as jnp
 import optax
 import pytest
-import jax.numpy as jnp
+
 from rerax.tasks.generative import GenerativeTask
 
 

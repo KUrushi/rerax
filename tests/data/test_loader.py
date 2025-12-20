@@ -1,7 +1,8 @@
-import pytest
-import numpy
 import grain
+import numpy
 import numpy as np
+import pytest
+
 from rerax.data.loader import build_dataloader
 
 
