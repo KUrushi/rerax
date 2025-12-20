@@ -31,7 +31,7 @@ class SASRec(nnx.Module):
         self.norm = nnx.LayerNorm(hidden_size, rngs=rngs)
         self.projection = nnx.Linear(hidden_size, num_items, rngs=rngs)
 
-    def __call__(self, batch: dict[str, Any], training: bool):
+    def __call__(self, batch: dict[str, Any], training: bool) -> jnp.ndarray:
         x = self.embed(batch["inputs"], training=training)
         for block in self.sas_blocks:
             x = block(x, mask=self.mask[: x.shape[1], : x.shape[1]], training=training)
