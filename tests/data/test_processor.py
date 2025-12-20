@@ -10,10 +10,10 @@ class TestDataProcessor:
     def test_process_sequence_padding(self):
         """
         短いシーケンスの場合、paddingが行われるか
-        max_len = 5, item_ids[1,3]
+        max_len = 5, item_ids=[1, 2]
         Input: [1, 2, 0, 0, 0]
         Label: [2, 0, 0, 0, 0]
-        Mask: [1, 1, 0, 0, 0]
+        Mask: [1, 0, 0, 0, 0]
         """
         item_ids = [1, 2]
         max_len = 5
