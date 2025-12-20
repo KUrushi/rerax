@@ -22,7 +22,7 @@ class TestSASRec:
             num_heads=4,
             num_blocks=2,
             dropout_rate=0.1,
-            rngs=nnx.Rngs(0)
+            rngs=nnx.Rngs(0),
         )
 
     def test_fiddle_build_and_forward_shape(self, base_config):
@@ -45,7 +45,6 @@ class TestSASRec:
         logits1 = model(batch, training=False)
         logits2 = model(batch, training=False)
         assert jnp.array_equal(logits1, logits2)
-
 
     def test_create_causal_mask(self):
         """

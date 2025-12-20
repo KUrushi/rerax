@@ -2,12 +2,9 @@ from typing import Any
 
 import jax.numpy as jnp
 import optax
-import pytest
 from flax import nnx
 
 from rerax.tasks.base import Task
-
-# まだ存在しないモジュールをインポートしようとする（ここでコケるはず）
 from rerax.tracking.base import BaseTracker
 from rerax.training.trainer import Trainer
 
