@@ -64,8 +64,8 @@ class TestDataProcessor:
         max_len = 3
 
         inputs, labels, mask = process_sequence(item_ids, max_len)
-        expected_inputs = np.array([1,2,3])
-        expected_labels = np.array([2,3,0])
+        expected_inputs = np.array([1, 2, 3])
+        expected_labels = np.array([2, 3, 0])
         expected_mask = np.array([1, 1, 0])
         np.testing.assert_array_equal(inputs, expected_inputs)
         np.testing.assert_array_equal(labels, expected_labels)
