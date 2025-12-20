@@ -5,7 +5,8 @@ from flax import nnx
 class SASRecEmbedding(nnx.Module):
     def __init__(
         self,
-        num_of_items: int,
+        num_items: int,
+
         max_len: int,
         hidden_size: int,
         dropout_rate: float,
