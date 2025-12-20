@@ -4,15 +4,17 @@ from flax import nnx
 
 from rerax.tasks.base import Task
 
+
 class TestTaskInterface:
     """Design Doc 3.1: Task Abstraction Design の要件を満たすかテスト"""
 
     def test_task_is_nnx_module(self):
         """Taskは nnx.Module を継承している必要がある"""
+
         # 具体的な実装を持たない抽象クラスとして扱うため、
         # テスト用のダミーサブクラスを作成して検証します
         class DummyTask(Task):
-            def compute_loss(self, outputs, batch, *,training=True):
+            def compute_loss(self, outputs, batch, *, training=True):
                 return jnp.array(0.0)
 
             def compute_metrics(self, outputs, batch):

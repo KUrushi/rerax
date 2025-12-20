@@ -13,8 +13,7 @@ def build_dataloader(
     transformations: Sequence[grain.Transformation] = (),
     worker_count: int = 0,
 ) -> grain.DataLoader:
-    """
-    """
+    """ """
     sampler = grain.IndexSampler(
         num_records=len(data_source),
         shuffle=shuffle,
@@ -24,7 +23,7 @@ def build_dataloader(
     operations = []
     operations.extend(transformations)
     operations.append(grain.Batch(batch_size=batch_size, drop_remainder=drop_remainder))
-        
+
     loader = grain.DataLoader(
         data_source=data_source,
         sampler=sampler,
