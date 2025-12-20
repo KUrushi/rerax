@@ -40,6 +40,7 @@ class SASRec(nnx.Module):
 
 
 def create_causal_mask(seq_len: int):
-    mask = jnp.ones((seq_len, seq_len), dtype=jnp.bool)
+    mask = jnp.ones((seq_len, seq_len), dtype=bool)
+
     mask = jnp.tril(mask)
     return mask
