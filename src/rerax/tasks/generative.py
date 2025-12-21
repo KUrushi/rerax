@@ -12,13 +12,14 @@ class GenerativeTask(Task):
         batch: dict[str, chex.Array],
         *,
         mask: chex.Array | None = None,
+        training: bool = True,
     ):
         loss = optax.softmax_cross_entropy_with_integer_labels(
             logits=outputs, labels=batch["labels"]
         )
-        if mask:
-            loss = loss * mask
-        return loss.sum() / jnp.min(mask.sum(), 1)
+        if mask is not None:
+            return (loss * mask).sum() / jnp.maximum(mask.sum(), 1)
+        return loss.mean()
 
     def compute_metrics(self, outputs: chex.Array, batch: dict[str, chex.Array]):
         predictions = jnp.argmax(outputs, axis=2)

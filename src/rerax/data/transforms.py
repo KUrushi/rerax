@@ -1,8 +1,6 @@
 import grain.python as grain
 import numpy as np
-
 from rerax.data.processor import process_sequence
-
 
 
 class ProcessSequence(grain.MapTransform):
