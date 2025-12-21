@@ -8,7 +8,7 @@ class ProcessSequence(grain.MapTransform):
         self._max_len = max_len
         self._id_keys = id_keys
 
-    def map(self, element) -> dict[str, np.ndarray]:
+    def map(self, element: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
         input_ids = element[self._id_keys]
         inputs, labels, mask = process_sequence(input_ids, max_len=self._max_len)
 
