@@ -1,0 +1,45 @@
+import jax.numpy as jnp
+import optax
+import pytest
+import chex
+from flax import nnx
+
+from rerax.tasks.retrieval import RetrievalTask
+
+
+class TestRetrievalTask:
+    def test_compute_in_batch_softmax(self):
+        """
+        RetrievalTaskがIn-batch Softmax Lossを正しく計算できるか検証する
+        - クエリと候補の埋め込みを受け取る
+        - 行列積でスコア(ロジット)を計算する
+        - 対角成分を正解ラベルとしてCrossEntropyを計算する
+        """
+        batch_size = 4
+        hidden_size = 8
+
+        rngs = nnx.Rngs(0)
+        query_embeddings = jnp.ones((batch_size, hidden_size))
+        candidate_embeddings = jnp.ones((batch_size, hidden_size))
+
+        outputs = {
+            "query_embeddings": query_embeddings,
+            "candidate_embeddings": candidate_embeddings
+        }
+
+        batch = {}
+        task = RetrievalTask()
+
+        loss = task.compute_loss(outputs, batch)
+        logits = jnp.matmul(query_embeddings, candidate_embeddings.T)
+        expected_loss = optax.softmax_cross_entropy_with_integer_labels(
+            logits=logits,
+            labels=jnp.arange(batch_size)
+        ).mean()
+
+        chex.assert_trees_all_close(loss, expected_loss)
+        
+
+
+        
+

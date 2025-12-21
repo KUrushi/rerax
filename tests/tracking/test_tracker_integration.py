@@ -38,10 +38,10 @@ class TestTrackerIntegration:
                 return self.layer(batch["x"])
 
         class DummyTask(Task):
-            def compute_loss(self, outputs, batch, *, training=True):
+            def compute_loss(self, outputs, batch, *, training=True, mask=None):
                 return jnp.array(0.5)  # 定数Loss
 
-            def compute_metrics(self, outputs, batch):
+            def compute_metrics(self, outputs, batch, *, mask=None):
                 return {"loss": self.compute_loss(outputs, batch)}
 
         model = DummyModel(nnx.Rngs(0))
