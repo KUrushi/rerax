@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 import optax
-import pytest
+import jax
 import chex
 from flax import nnx
 
@@ -41,5 +41,32 @@ class TestRetrievalTask:
         
 
 
+    def test_compute_metrics(self):
+        """
+        RetrievalTaskがメトリクス (Recall@K)を正しく計算できるか検証
+        """
+        batch_size = 10
+        hidden_size = 4
+        key = jax.random.key(0)
+        query_key, key = jax.random.split(key)
+
+        query_embeddings = jax.random.normal(query_key, (batch_size, hidden_size)) 
+        candidate_embeddings = query_embeddings
+
+        outputs = {
+            "query_embeddings": query_embeddings,
+            "candidate_embeddings": candidate_embeddings
+        }
+
+        batch = {}
+
+        task = RetrievalTask()
+        metrics = task.compute_metrics(outputs, batch)
+
+        assert "recall@1" in metrics
+        assert metrics["recall@1"] == 1.0
+
+        assert "recall@5" in metrics
+        assert metrics["recall@5"] == 1.0
         
 

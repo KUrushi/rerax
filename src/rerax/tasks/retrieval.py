@@ -4,8 +4,9 @@ from rerax.tasks.base import Task
 
 class RetrievalTask(Task):
     def compute_loss(self, outputs, batch, *, mask=None, training=True):
-
-        logits = outputs['query_embeddings'] @ outputs['candidate_embeddings'].T
+        query_embeddings = self._normalize(outputs['query_embeddings'])
+        candidate_embeddings = self._normalize(outputs['candidate_embeddings'])
+        logits = query_embeddings @ candidate_embeddings.T
 
         return optax.softmax_cross_entropy_with_integer_labels(
             logits=logits,
@@ -14,4 +15,19 @@ class RetrievalTask(Task):
 
 
     def compute_metrics(self, outputs, batch, *, mask=None):
-        return super().compute_metrics(outputs, batch, mask=mask)
+        query_embeddings = self._normalize(outputs['query_embeddings'])
+        candidate_embeddings = self._normalize(outputs['candidate_embeddings'])
+        logits = query_embeddings @ candidate_embeddings.T
+
+        prediction = jnp.argsort(-logits, axis=-1)
+        targets = jnp.arange(logits.shape[0])[:, None]
+
+        metrics = {}
+        for k in (1, 5):
+            correct = prediction[:,:k] == targets
+            metrics[f"recall@{k}"] = correct.sum() / targets.shape[0]
+
+        return metrics
+
+    def _normalize(self, embeddings):
+        return embeddings / jnp.linalg.norm(embeddings, axis=-1, keepdims=True)
