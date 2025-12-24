@@ -1,18 +1,20 @@
-import jax
 import chex
+import jax
+from flax import nnx
+
 from rerax.layers.common import Squeeze
 from rerax.models.two_tower import TwoTowerModel
-from flax import nnx
+
 
 class TestTwoTowerModel:
     def test_two_tower_output_shape(self):
         class QueryTower(nnx.Module):
             def __init__(self, vocab_size: int, hidden_size, *, rngs: nnx.Rngs):
                 self._embedding = nnx.Embed(vocab_size, hidden_size, rngs=rngs)
-                self._linear =  nnx.Linear(hidden_size, hidden_size, rngs=rngs)
+                self._linear = nnx.Linear(hidden_size, hidden_size, rngs=rngs)
                 self._squeeze = Squeeze(axis=1)
-            
-            def __call__(self, x:chex.Array):
+
+            def __call__(self, x: chex.Array):
                 x = self._embedding(x)
                 x = self._linear(x)
                 x = self._squeeze(x)
@@ -21,11 +23,10 @@ class TestTwoTowerModel:
         class CandidateTower(nnx.Module):
             def __init__(self, vocab_size: int, hidden_size, *, rngs: nnx.Rngs):
                 self._embedding = nnx.Embed(vocab_size, hidden_size, rngs=rngs)
-                self._linear =  nnx.Linear(hidden_size, hidden_size, rngs=rngs)
+                self._linear = nnx.Linear(hidden_size, hidden_size, rngs=rngs)
                 self._squeeze = Squeeze(axis=1)
 
-            
-            def __call__(self, x:chex.Array):
+            def __call__(self, x: chex.Array):
                 x = self._embedding(x)
                 x = self._linear(x)
                 x = self._squeeze(x)
@@ -43,17 +44,19 @@ class TestTwoTowerModel:
 
         ids_key, key = jax.random.split(key)
         batch_data = {
-            "query_ids": jax.random.randint(ids_key, shape=(batch_size,1), minval=0, maxval=vocab_size),
-            "candidate_ids": jax.random.randint(ids_key, shape=(batch_size,1), minval=0, maxval=vocab_size)
+            "query_ids": jax.random.randint(
+                ids_key, shape=(batch_size, 1), minval=0, maxval=vocab_size
+            ),
+            "candidate_ids": jax.random.randint(
+                ids_key, shape=(batch_size, 1), minval=0, maxval=vocab_size
+            ),
         }
 
         output = model(batch_data)
         expected_shape = (batch_size, hidden_size)
-        chex.assert_shape(output['candidate_embeddings'], expected_shape)
-        chex.assert_shape(output['query_embeddings'], expected_shape)
+        chex.assert_shape(output["candidate_embeddings"], expected_shape)
+        chex.assert_shape(output["query_embeddings"], expected_shape)
 
-        chex.assert_equal_shape([output['candidate_embeddings'], output['query_embeddings']])
-        
-        
-
-        
+        chex.assert_equal_shape(
+            [output["candidate_embeddings"], output["query_embeddings"]]
+        )

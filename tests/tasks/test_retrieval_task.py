@@ -1,10 +1,14 @@
+import chex
+import jax
 import jax.numpy as jnp
 import optax
-import jax
-import chex
 from flax import nnx
 
 from rerax.tasks.retrieval import RetrievalTask
+
+
+def _normalize(embeddings):
+    return embeddings / (jnp.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-8)
 
 
 class TestRetrievalTask:
@@ -24,22 +28,21 @@ class TestRetrievalTask:
 
         outputs = {
             "query_embeddings": query_embeddings,
-            "candidate_embeddings": candidate_embeddings
+            "candidate_embeddings": candidate_embeddings,
         }
 
         batch = {}
         task = RetrievalTask()
 
         loss = task.compute_loss(outputs, batch)
-        logits = jnp.matmul(query_embeddings, candidate_embeddings.T)
+        logits = jnp.matmul(
+            _normalize(query_embeddings), _normalize(candidate_embeddings).T
+        )
         expected_loss = optax.softmax_cross_entropy_with_integer_labels(
-            logits=logits,
-            labels=jnp.arange(batch_size)
+            logits=logits, labels=jnp.arange(batch_size)
         ).mean()
 
         chex.assert_trees_all_close(loss, expected_loss)
-        
-
 
     def test_compute_metrics(self):
         """
@@ -50,12 +53,12 @@ class TestRetrievalTask:
         key = jax.random.key(0)
         query_key, key = jax.random.split(key)
 
-        query_embeddings = jax.random.normal(query_key, (batch_size, hidden_size)) 
+        query_embeddings = jax.random.normal(query_key, (batch_size, hidden_size))
         candidate_embeddings = query_embeddings
 
         outputs = {
             "query_embeddings": query_embeddings,
-            "candidate_embeddings": candidate_embeddings
+            "candidate_embeddings": candidate_embeddings,
         }
 
         batch = {}
@@ -68,5 +71,3 @@ class TestRetrievalTask:
 
         assert "recall@5" in metrics
         assert metrics["recall@5"] == 1.0
-        
-
