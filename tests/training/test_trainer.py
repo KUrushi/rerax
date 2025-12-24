@@ -22,11 +22,11 @@ class TestTrainer:
                 return self.linear(batch["inputs"])
 
         class MSETask(Task):
-            def compute_loss(self, outputs, batch, *, training=True):
+            def compute_loss(self, outputs, batch, *, training=True, mask=None):
                 loss = jnp.mean((outputs - batch["targets"]) ** 2)
                 return loss
 
-            def compute_metrics(self, outputs, batch):
+            def compute_metrics(self, outputs, batch, *, mask=None):
                 return {"loss": self.compute_loss(outputs, batch)}
 
         rngs = nnx.Rngs(0)
@@ -73,11 +73,11 @@ class TestTrainer:
                 return self.linear(batch["inputs"])
 
         class MSETask(Task):
-            def compute_loss(self, outputs, batch, *, training=True):
+            def compute_loss(self, outputs, batch, *, training=True, mask=None):
                 loss = jnp.mean((outputs - batch["targets"]) ** 2)
                 return loss
 
-            def compute_metrics(self, outputs, batch):
+            def compute_metrics(self, outputs, batch, *, mask=None):
                 return {"loss": self.compute_loss(outputs, batch)}
 
         rngs = nnx.Rngs(0)
@@ -132,10 +132,10 @@ class TestTrainerFit:
                 return self.linear(batch["inputs"])
 
         class MSETask(Task):
-            def compute_loss(self, outputs, batch, *, training=True):
+            def compute_loss(self, outputs, batch, *, training=True, mask=None):
                 return jnp.mean((outputs - batch["targets"]) ** 2)
 
-            def compute_metrics(self, outputs, batch):
+            def compute_metrics(self, outputs, batch, *, mask=None):
                 return {"loss": self.compute_loss(outputs, batch)}
 
         rngs = nnx.Rngs(0)

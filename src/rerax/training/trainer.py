@@ -58,18 +58,16 @@ class Trainer(BaseTrainer):
     ) -> dict[str, Any]:
         def loss_fn(model):
             outputs = model(batch)
-            loss = self._task.compute_loss(outputs, batch, training=True, mask=batch.get("mask"))
+            loss = self._task.compute_loss(
+                outputs, batch, training=True, mask=batch.get("mask")
+            )
             return loss, outputs
 
         grad_fn = nnx.value_and_grad(loss_fn, has_aux=True)
         (loss, outputs), grads = grad_fn(self._model)
         self._optimizer.update(self._model, grads=grads)
 
-        metrics = self._task.compute_metrics(
-            outputs,
-            batch,
-            mask=batch.get("mask")
-        )
+        metrics = self._task.compute_metrics(outputs, batch, mask=batch.get("mask"))
         if "loss" not in metrics:
             metrics["loss"] = loss
         return metrics

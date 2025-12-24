@@ -21,9 +21,15 @@ class GenerativeTask(Task):
             return self._compute_masked_mean(loss, mask)
         return loss.mean()
 
-    def compute_metrics(self, outputs: chex.Array, batch: dict[str, chex.Array], *, mask: chex.Array | None = None):
+    def compute_metrics(
+        self,
+        outputs: chex.Array,
+        batch: dict[str, chex.Array],
+        *,
+        mask: chex.Array | None = None,
+    ):
         predictions = jnp.argmax(outputs, axis=2)
-        correct = (batch['labels'] == predictions).astype(jnp.float32)
+        correct = (batch["labels"] == predictions).astype(jnp.float32)
 
         if mask is not None:
             accuracy = self._compute_masked_mean(correct, mask)
