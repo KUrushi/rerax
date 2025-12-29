@@ -30,7 +30,7 @@ def calculate_training_schedule(
         steps_per_epoch = math.ceil(dataset_size / global_batch_size)
 
     if steps_per_epoch == 0:
-        raise ValueError(f"Global batch size ({global_batch_size}) i s larger than dataset size ({dataset_size}).")
+        raise ValueError(f"Global batch size ({global_batch_size}) is larger than dataset size ({dataset_size}).")
 
     total_steps = steps_per_epoch * num_epochs
     warmup_steps = int(total_steps * warmup_ratio)
