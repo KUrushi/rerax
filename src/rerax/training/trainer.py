@@ -3,10 +3,10 @@ from typing import Any
 
 import chex
 from flax import nnx
+from grain.python import DataLoader
 
 from rerax.tasks.base import Task
 from rerax.tracking.base import BaseTracker
-from grain.python import DataLoader
 
 
 class BaseTrainerMeta(type(nnx.Module), abc.ABCMeta):
@@ -40,7 +40,7 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
         total_steps: int,
         log_freq: int = 100,
         eval_loader: DataLoader | None = None,
-        eval_freq: int | None = None
+        eval_freq: int | None = None,
     ) -> dict[str, Any]:
         train_metrics = nnx.MultiMetric(loss=nnx.metrics.Average("loss"))
         iterator = iter(train_loader)
@@ -58,9 +58,8 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
 
             step_metrics = self.train_step(batch)
 
-            train_metrics.update(**step_metrics) 
+            train_metrics.update(**step_metrics)
             current_step += 1
-
 
             if current_step % log_freq == 0:
                 current_result = train_metrics.compute()
@@ -72,15 +71,15 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
                 train_metrics.reset()
 
             if eval_loader and eval_freq and current_step % eval_freq == 0:
-                # TODO: 
+                # TODO:
                 # self.evaluate(eval_loader, current_step)
                 pass
 
-        return {"history": history} 
+        return {"history": history}
 
     def evaluate(self, data_loader: DataLoader, current_step: int) -> dict[str, Any]:
         raise NotImplementedError("evaluateはまだ未実装です")
-    
+
 
 # nnx.jitは関数の引数をJAXに持ち込む
 # nnx.Moduleを継承することで、`Trainer`クラスは自動的にJAXが扱えるオブジェクト(pytree)として登録して追跡できるようにする

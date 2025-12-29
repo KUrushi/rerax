@@ -57,7 +57,6 @@ class TestTrackerIntegration:
         # --- 3. 実行 ---
         # データローダー (1エポックあたり2バッチ)
         data = [{"x": jnp.ones((1, 1))} for _ in range(2)]
-        
 
         # 3エポック回す
         trainer.fit(data, 3, log_freq=1)

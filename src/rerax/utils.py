@@ -1,17 +1,19 @@
 import math
-from typing import NamedTuple 
+from typing import NamedTuple
+
 
 class TrainingSchedule(NamedTuple):
     total_steps: int
     steps_per_epoch: int
     warmup_steps: int
 
+
 def calculate_training_schedule(
-        dataset_size: int,
-        global_batch_size: int,
-        num_epochs: int,
-        drop_remainder: bool = True,
-        warmup_ratio: float = 0.0
+    dataset_size: int,
+    global_batch_size: int,
+    num_epochs: int,
+    drop_remainder: bool = True,
+    warmup_ratio: float = 0.0,
 ) -> TrainingSchedule:
     """
     データセットサイズとエポック数から、必要な総ステップを計算します。
@@ -30,13 +32,14 @@ def calculate_training_schedule(
         steps_per_epoch = math.ceil(dataset_size / global_batch_size)
 
     if steps_per_epoch == 0:
-        raise ValueError(f"Global batch size ({global_batch_size}) is larger than dataset size ({dataset_size}).")
+        raise ValueError(
+            f"Global batch size ({global_batch_size}) is larger than dataset size ({dataset_size})."
+        )
 
     total_steps = steps_per_epoch * num_epochs
     warmup_steps = int(total_steps * warmup_ratio)
     return TrainingSchedule(
         total_steps=total_steps,
         steps_per_epoch=steps_per_epoch,
-        warmup_steps=warmup_steps
+        warmup_steps=warmup_steps,
     )
-

@@ -5,7 +5,6 @@ from flax import nnx
 
 from rerax.layers.common import Squeeze
 
-
 # def pytest_addoption(parser):
 #     """コマンドラインオプション --run-e2eを追加"""
 #     parser.addoption(

@@ -1,6 +1,6 @@
 import chex
-import optax
 import grain.python as grain
+import optax
 import pytest
 from flax import nnx
 
@@ -27,7 +27,6 @@ class TowerModel(nnx.Module):
 
 @pytest.mark.e2e
 class TestE2ETraining:
-
     def test_retrieval_training(
         self, e2e_retrieval_grain_datasource: grain.RandomAccessDataSource
     ):
@@ -45,21 +44,13 @@ class TestE2ETraining:
             rngs=rngs,
         )
         candidate_tower = TowerModel(
-             vocab_size=3,
+            vocab_size=3,
             hidden_size=4,
             rngs=rngs,
         )
         tower_model = TwoTowerModel(query_tower, candidate_tower)
         tx = optax.adam(learning_rate=0.01)
-        optimizer = nnx.Optimizer(
-            tower_model,
-            tx,
-            wrt=nnx.Param
-        )
+        optimizer = nnx.Optimizer(tower_model, tx, wrt=nnx.Param)
 
-        trainer = Trainer(
-            tower_model,
-            task=RetrievalTask(),
-            optimizer=optimizer
-        )
+        trainer = Trainer(tower_model, task=RetrievalTask(), optimizer=optimizer)
         trainer.fit(data_loader, total_steps=5)
