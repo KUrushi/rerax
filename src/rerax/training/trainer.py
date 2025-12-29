@@ -47,7 +47,7 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
         current_step = 0
 
         history = []
-        print("Start training for {total_steps} steps...")
+        print(f"Start training for {total_steps} steps...")
 
         while current_step < total_steps:
             try:
