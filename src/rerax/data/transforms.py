@@ -44,5 +44,8 @@ class TwoTowerPreprocessor(grain.MapTransform):
                 output[target_key] = np.array(value)
             else:
                 output[target_key] = np.array([value])
+                output[target_key] = np.array(value)
+            else:
+                output[target_key] = np.array([value])
 
         return output
