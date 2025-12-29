@@ -14,3 +14,38 @@ class ProcessSequence(grain.MapTransform):
         inputs, labels, mask = process_sequence(input_ids, max_len=self._max_len)
 
         return {"inputs": inputs, "labels": labels, "mask": mask}
+
+
+class TwoTowerPreprocessor(grain.MapTransform):
+    def __init__(
+        self,
+        query_key: str,
+        candidate_key: str,
+        *,
+        target_query_key_name: str = "query_ids",
+        target_candidate_key_name="candidate_ids",
+    ):
+        self._query_key = query_key
+        self._candidate_key = candidate_key
+        self._target_query_key_name = target_query_key_name
+        self._target_candidate_key_name = target_candidate_key_name
+
+    def map(self, element: dict[str, int | np.ndarray]) -> dict[str, int | np.ndarray]:
+        output = {k: v for k, v in element.items() if k not in {self._query_key, self._candidate_key}}
+
+        for key, target_key in zip(
+            (self._query_key, self._candidate_key),
+            (self._target_query_key_name, self._target_candidate_key_name),
+        ):
+            value = element[key]
+            if isinstance(value, np.ndarray):
+                output[target_key] = value
+            elif isinstance(value, list):
+                output[target_key] = np.array(value)
+            else:
+                output[target_key] = np.array([value])
+                output[target_key] = np.array(value)
+            else:
+                output[target_key] = np.array([value])
+
+        return output

@@ -59,7 +59,7 @@ class TestTrackerIntegration:
         data = [{"x": jnp.ones((1, 1))} for _ in range(2)]
 
         # 3エポック回す
-        trainer.fit(data, num_epochs=3)
+        trainer.fit(data, 3, log_freq=1)
 
         # --- 4. 検証 ---
         # 3エポック分のログが残っているはず
@@ -70,4 +70,4 @@ class TestTrackerIntegration:
         assert "step" in last_log
         assert "loss" in last_log["metrics"]
         # エポック番号(0, 1, 2)がステップとして記録されているか
-        assert last_log["step"] == 2
+        assert last_log["step"] == 3

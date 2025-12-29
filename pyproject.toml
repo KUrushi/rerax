@@ -29,6 +29,9 @@ dev = [
 testpaths = ["tests"]
 pythonpath = "src"
 addopts = "-v --import-mode=importlib"
+markers = [
+    "e2e: End-to-End tests for ML models (invoke with --run-e2e)",
+]
 
 [tool.ruff]
 # Blackのデフォルトと同じ88文字（必要に応じて変更してください）

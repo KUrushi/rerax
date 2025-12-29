@@ -3,6 +3,7 @@ from typing import Any
 
 import chex
 from flax import nnx
+from grain.python import DataLoader
 
 from rerax.tasks.base import Task
 from rerax.tracking.base import BaseTracker
@@ -29,23 +30,55 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
     def train_step(self, batch) -> dict[str, Any]:
         pass
 
+    @abc.abstractmethod
+    def eval_step(self, batch) -> dict[str, Any]:
+        pass
+
     def fit(
-        self, data_loader, num_epochs: int = 1, *, training=True
-    ) -> list[dict[str, float]]:
-        history_per_epoch = []
-        epoch_metrics = nnx.MultiMetric(loss=nnx.metrics.Average())
-        for epoch in range(num_epochs):
-            epoch_metrics.reset()
-            for batch in data_loader:
-                metrics = self.train_step(batch)
-                epoch_metrics.update(values=metrics["loss"])
+        self,
+        train_loader: DataLoader,
+        total_steps: int,
+        log_freq: int = 100,
+        eval_loader: DataLoader | None = None,
+        eval_freq: int | None = None,
+    ) -> dict[str, Any]:
+        train_metrics = nnx.MultiMetric(loss=nnx.metrics.Average("loss"))
+        iterator = iter(train_loader)
+        current_step = 0
 
-            current_result = epoch_metrics.compute()
-            history_per_epoch.append(current_result)
-            if self._tracker:
-                self._tracker.log_metrics(current_result, step=epoch)
+        history = []
+        print(f"Start training for {total_steps} steps...")
 
-        return history_per_epoch
+        while current_step < total_steps:
+            try:
+                batch = next(iterator)
+            except StopIteration:
+                iterator = iter(train_loader)
+                batch = next(iterator)
+
+            step_metrics = self.train_step(batch)
+
+            train_metrics.update(**step_metrics)
+            current_step += 1
+
+            if current_step % log_freq == 0:
+                current_result = train_metrics.compute()
+                print(f"Step {current_step}: {current_result}")
+                if self._tracker:
+                    self._tracker.log_metrics(current_result, step=current_step)
+
+                history.append(current_result)
+                train_metrics.reset()
+
+            if eval_loader and eval_freq and current_step % eval_freq == 0:
+                # TODO:
+                # self.evaluate(eval_loader, current_step)
+                pass
+
+        return {"history": history}
+
+    def evaluate(self, data_loader: DataLoader, current_step: int) -> dict[str, Any]:
+        raise NotImplementedError("evaluateはまだ未実装です")
 
 
 # nnx.jitは関数の引数をJAXに持ち込む
