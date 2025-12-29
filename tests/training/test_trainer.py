@@ -153,7 +153,7 @@ class TestTrainerFit:
 
         # 重みが0なので、予測は0。正解はYなのでLossは大きい
         initial_loss = task.compute_loss(model({"inputs": X}), {"targets": Y})
-        history = trainer.fit(train_loader, num_epochs=5)
+        history = trainer.fit(train_loader, total_steps=100)
 
         final_loss = task.compute_loss(model({"inputs": X}), {"targets": Y})
         print(f"{initial_loss = }")
