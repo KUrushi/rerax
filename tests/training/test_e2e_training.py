@@ -39,7 +39,7 @@ class TestE2ETraining:
 
         rngs = nnx.Rngs(0)
         query_tower = TowerModel(
-            vocab_size=3,
+            vocab_size=4,
             hidden_size=4,
             rngs=rngs,
         )
