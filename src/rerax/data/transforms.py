@@ -39,9 +39,12 @@ class TwoTowerPreprocessor(grain.MapTransform):
             (self._query_key, self._candidate_key),
             (self._target_query_key_name, self._target_candidate_key_name),
         ):
-            if not isinstance(element[key], list | np.ndarray):
-                output[target_key] = np.array([element[key]])
+            value = element[key]
+            if isinstance(value, np.ndarray):
+                output[target_key] = value
+            elif isinstance(value, list):
+                output[target_key] = np.array(value)
             else:
-                output[target_key] = element[key]
+                output[target_key] = np.array([value])
 
         return output
