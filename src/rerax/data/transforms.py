@@ -31,9 +31,7 @@ class TwoTowerPreprocessor(grain.MapTransform):
         self._target_candidate_key_name = target_candidate_key_name
 
     def map(self, element: dict[str, int | np.ndarray]) -> dict[str, int | np.ndarray]:
-        output = element.copy()
-        output.pop(self._query_key)
-        output.pop(self._candidate_key)
+        output = {k: v for k, v in element.items() if k not in {self._query_key, self._candidate_key}}
 
         for key, target_key in zip(
             (self._query_key, self._candidate_key),
