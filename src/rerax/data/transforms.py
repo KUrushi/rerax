@@ -30,7 +30,7 @@ class TwoTowerPreprocessor(grain.MapTransform):
         self._target_query_key_name = target_query_key_name
         self._target_candidate_key_name = target_candidate_key_name
 
-    def map(self, element: dict[str, int | np.ndarray]) -> dict[str, np.ndarray]:
+    def map(self, element: dict[str, int | np.ndarray]) -> dict[str, int | np.ndarray]:
         output = element.copy()
         output.pop(self._query_key)
         output.pop(self._candidate_key)
