@@ -2,6 +2,7 @@ import abc
 from typing import Any
 
 import chex
+import orbax.checkpoint as ocp
 from flax import nnx
 from grain.python import DataLoader
 
@@ -20,11 +21,13 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
         task: Task,
         optimizer: nnx.Optimizer,
         tracker: BaseTracker | None = None,
+        checkpoint_dir: str | None = None,
     ):
         self._model = model
         self._task = task
         self._optimizer = optimizer
         self._tracker = tracker
+        self._checkpoint_dir = checkpoint_dir
 
     @abc.abstractmethod
     def train_step(self, batch) -> dict[str, Any]:
@@ -33,6 +36,45 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
     @abc.abstractmethod
     def eval_step(self, batch) -> dict[str, Any]:
         pass
+
+    def save_checkpoint(self, step: int) -> None:
+        if self._checkpoint_dir is None:
+            return
+        options = ocp.CheckpointManagerOptions()
+        with ocp.CheckpointManager(self._checkpoint_dir, options=options) as mngr:
+            _, params_state = nnx.split(self._model, nnx.Param)
+            optimizer_state = nnx.state(self._optimizer)
+            save_items = {
+                "params": ocp.args.StandardSave(params_state),
+                "optimizer": ocp.args.StandardSave(optimizer_state),
+            }
+            mngr.save(step, args=ocp.args.Composite(**save_items))
+
+    def restore_checkpoint(self, step: int | None) -> int | None:
+        if self._checkpoint_dir is None:
+            return None
+
+        with ocp.CheckpointManager(self._checkpoint_dir) as mngr:
+            if step is None:
+                step = mngr.latest_step()
+
+            if step is None:
+                return None
+
+            _, abs_params_state = nnx.split(self._model, nnx.Param)
+            abs_optimizer_state = nnx.state(self._optimizer)
+            restore_targets = {
+                "params": ocp.args.StandardRestore(abs_params_state),
+                "optimizer": ocp.args.StandardRestore(abs_optimizer_state),
+            }
+
+            restored_items = mngr.restore(
+                step, args=ocp.args.Composite(**restore_targets)
+            )
+
+        nnx.update(self._model, restored_items["params"])
+        nnx.update(self._optimizer, restored_items["optimizer"])
+        return step
 
     def fit(
         self,
@@ -104,3 +146,7 @@ class Trainer(BaseTrainer):
         if "loss" not in metrics:
             metrics["loss"] = loss
         return metrics
+
+    @nnx.jit
+    def eval_step(self, batch: dict[str, chex.Array]) -> dict[str, Any]:
+        return {"dummy": "test"}

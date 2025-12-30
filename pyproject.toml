@@ -23,6 +23,7 @@ dev = [
     "ipython>=8.37.0",
     "isort>=7.0.0",
     "pytest>=9.0.2",
+    "ty>=0.0.8",
 ]
 
 [tool.pytest.ini_options]
