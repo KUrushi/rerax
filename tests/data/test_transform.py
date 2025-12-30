@@ -42,3 +42,13 @@ class TestTransform:
         )
         actual = processor.map(data)
         chex.assert_trees_all_equal(expected_data, actual)
+
+    def test_list_input(self):
+        expected_data = {
+            "query_ids": np.array([123, 124]),
+            "candidate_ids": np.array([456, 457]),
+        }
+        data = {"user_id": [123, 124], "item_id": [456, 457]}
+        processor = TwoTowerPreprocessor("user_id", "item_id")
+        actual = processor.map(data)
+        chex.assert_trees_all_equal(expected_data, actual)
