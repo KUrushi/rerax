@@ -48,10 +48,16 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
             }
             mngr.save(step, args=ocp.args.Composite(**save_items))
 
-    def restore_checkpoint(self, step: int | None):
+    def restore_checkpoint(self, step: int | None) -> int | None:
+        if self._checkpoint_dir is None:
+            return None
+
         with ocp.CheckpointManager(self._checkpoint_dir) as mngr:
             if step is None:
-                steps = mngr.latest_step()
+                step = mngr.latest_step()
+
+            if step is None:
+                return None
 
             _, abs_params_state = nnx.split(self._model, nnx.Param)
             abs_optimizer_state = nnx.state(self._optimizer)
@@ -64,8 +70,10 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
                 step, args=ocp.args.Composite(**restore_targets)
             )
 
+
         nnx.update(self._model, restored_items["params"])
         nnx.update(self._optimizer, restored_items["optimizer"])
+        return step
 
     def fit(
         self,
