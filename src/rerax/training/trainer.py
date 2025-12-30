@@ -70,7 +70,6 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
                 step, args=ocp.args.Composite(**restore_targets)
             )
 
-
         nnx.update(self._model, restored_items["params"])
         nnx.update(self._optimizer, restored_items["optimizer"])
         return step

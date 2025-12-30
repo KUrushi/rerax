@@ -26,6 +26,7 @@ class TestCheckpointing:
                 # 明示的に params コレクションの乱数を使う
                 self.linear = nnx.Linear(2, 2, rngs=rngs)
                 self.squeeze = Squeeze(axis=1)
+
             def __call__(self, x):
                 return self.squeeze(self.linear(x))
 
@@ -40,9 +41,13 @@ class TestCheckpointing:
         # 保存前の状態を取得
         # nnx.stateは参照を返すので、state_originalを元にしたもの変更されると、state_originalそのものも変更されてします。
         # なので、コピーを作成する
-        state_original = jax.tree_util.tree_map(lambda x: x, nnx.state(model, nnx.Param))
-        
-        assert len(jax.tree_util.tree_leaves(state_original)) > 0, "Model params should not be empty"
+        state_original = jax.tree_util.tree_map(
+            lambda x: x, nnx.state(model, nnx.Param)
+        )
+
+        assert len(jax.tree_util.tree_leaves(state_original)) > 0, (
+            "Model params should not be empty"
+        )
 
         # チェックポイント保存
         trainer.save_checkpoint(step=100)
@@ -51,10 +56,14 @@ class TestCheckpointing:
         nnx.update(model, state_changed)
         current_state = nnx.state(model, nnx.Param)
 
-
         # 変更されたことを確認
         with pytest.raises(AssertionError):
-             chex.assert_trees_all_close(state_original.to_pure_dict(), current_state.to_pure_dict(), rtol=0, atol=1e-12)
+            chex.assert_trees_all_close(
+                state_original.to_pure_dict(),
+                current_state.to_pure_dict(),
+                rtol=0,
+                atol=1e-12,
+            )
 
         # 復元
         trainer.restore_checkpoint(step=100)
