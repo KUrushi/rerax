@@ -38,6 +38,8 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
         pass
 
     def save_checkpoint(self, step: int) -> None:
+        if self._checkpoint_dir is None:
+            return
         options = ocp.CheckpointManagerOptions()
         with ocp.CheckpointManager(self._checkpoint_dir, options=options) as mngr:
             _, params_state = nnx.split(self._model, nnx.Param)
