@@ -43,7 +43,7 @@ def eval_datasource():
 class TestEvaluation:
     def test_evaluation(self, eval_datasource):
         class TowerModel(nnx.Module):
-            def __init__(self, vocab_size: int, hidden_size, *, rngs: nnx.Rngs):
+            def __init__(self, vocab_size: int, hidden_size: int, *, rngs: nnx.Rngs):
                 self._embedding = nnx.Embed(vocab_size, hidden_size, rngs=rngs)
                 self._linear = nnx.Linear(hidden_size, hidden_size, rngs=rngs)
                 self._squeeze = Squeeze(axis=1)
