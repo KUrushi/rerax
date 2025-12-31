@@ -12,12 +12,10 @@ def build_dataloader(
     shuffle: bool = False,
     transformations: Sequence[grain.Transformation] = (),
     worker_count: int = 0,
+    num_epochs: int | None = None,
 ) -> grain.DataLoader:
-    """ """
     sampler = grain.IndexSampler(
-        num_records=len(data_source),
-        shuffle=shuffle,
-        seed=seed,
+        num_records=len(data_source), shuffle=shuffle, seed=seed, num_epochs=num_epochs
     )
 
     operations = []

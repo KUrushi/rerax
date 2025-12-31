@@ -119,8 +119,37 @@ class BaseTrainer(nnx.Module, metaclass=BaseTrainerMeta):
 
         return {"history": history}
 
-    def evaluate(self, data_loader: DataLoader, current_step: int) -> dict[str, Any]:
-        raise NotImplementedError("evaluateはまだ未実装です")
+    def evaluate(
+        self, data_loader: DataLoader, current_step: int, eval_steps: int | None = None
+    ) -> dict[str, Any]:
+        eval_metrics = None
+        iterator = iter(data_loader)
+
+        step = 0
+        while True:
+            if eval_steps and step >= eval_steps:
+                break
+            try:
+                batch = next(iterator)
+            except StopIteration:
+                break
+
+            step_metrics = self.eval_step(batch)
+
+            if eval_metrics is None:
+                metric_defs = {k: nnx.metrics.Average(k) for k in step_metrics.keys()}
+                eval_metrics = nnx.MultiMetric(**metric_defs)
+            eval_metrics.update(**step_metrics)
+            step += 1
+
+        if eval_metrics is None:
+            return {}
+        current_result = eval_metrics.compute()
+        print(f"Eval at step {current_step}: {current_result}")
+        if self._tracker:
+            self._tracker.log_metrics(current_result, step=current_step)
+
+        return current_result
 
 
 # nnx.jitは関数の引数をJAXに持ち込む
@@ -149,4 +178,15 @@ class Trainer(BaseTrainer):
 
     @nnx.jit
     def eval_step(self, batch: dict[str, chex.Array]) -> dict[str, Any]:
-        return {"dummy": "test"}
+        outputs = self._model(batch)
+
+        loss = self._task.compute_loss(
+            outputs, batch, training=False, mask=batch.get("mask")
+        )
+
+        metrics = self._task.compute_metrics(outputs, batch, mask=batch.get("mask"))
+
+        if "loss" not in metrics:
+            metrics["loss"] = loss
+
+        return metrics
