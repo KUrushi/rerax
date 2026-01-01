@@ -7,9 +7,8 @@ from grain.python import DataLoader
 
 
 class Predictor(nnx.Module):
-    def __init__(self, model: nnx.Module, checkpoint_dir: str | None = None):
+    def __init__(self, model: nnx.Module):
         self._model = model
-        self._checkpoint_dir = checkpoint_dir
 
     @classmethod
     def from_checkpoint(
