@@ -6,7 +6,7 @@ from flax import nnx
 from grain.python import DataLoader
 
 
-class Predictor:
+class Predictor(nnx.Module):
     def __init__(self, model: nnx.Module, checkpoint_dir: str | None = None):
         self._model = model
         self._checkpoint_dir = checkpoint_dir
@@ -17,7 +17,7 @@ class Predictor:
     ) -> "Predictor":
         with ocp.CheckpointManager(checkpoint_dir) as mngr:
             if step is None:
-                step = mngr.latest_step
+                step = mngr.latest_step()
                 if step is None:
                     raise ValueError(f"No Checkpoints found in {checkpoint_dir}")
 
@@ -29,13 +29,13 @@ class Predictor:
             restored = mngr.restore(step, args=restore_args)
 
             nnx.update(model, restored["params"])
-            return cls(moodel)
+            return cls(model)
 
     @nnx.jit
     def predict_step(
         self, batch: dict[str, chex.Array]
     ) -> chex.Array | dict[str, chex.Array]:
-        return self._model(batch, training=False)
+        return self._model(batch)
 
     def predict(self, data_loader: DataLoader) -> chex.Array | dict[str, chex.Array]:
         results = []
