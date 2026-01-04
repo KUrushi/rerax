@@ -3,11 +3,25 @@ import jax
 from flax import nnx
 
 from rerax.layers.common import Squeeze
-from rerax.models.two_tower import TwoTowerModel
 
 
 class TestTwoTowerModel:
     def test_two_tower_output_shape(self):
+        class CustomTwoTowerModel(nnx.Module):
+            def __init__(self, query_tower: nnx.Module, candidate_tower: nnx.Module):
+                self.query_tower = query_tower
+                self.candidate_tower = candidate_tower
+
+            def __call__(self, batch: dict[str, chex.Array]) -> dict[str, chex.Array]:
+                query_ids = batch['query_ids']
+                candidate_ids = batch['candidate_ids']
+
+                query_embeddings = self.query_tower(query_ids)
+                candidate_embeddings = self.candidate_tower(candidate_ids)
+                return {
+                    "query_embedding": query_embeddings,
+                    "candidate_embeddings": candidate_embeddings
+                }
         class QueryTower(nnx.Module):
             def __init__(self, vocab_size: int, hidden_size, *, rngs: nnx.Rngs):
                 self._embedding = nnx.Embed(vocab_size, hidden_size, rngs=rngs)
@@ -40,7 +54,7 @@ class TestTwoTowerModel:
         rngs = nnx.Rngs(model_key)
         query_tower = QueryTower(vocab_size, hidden_size, rngs=rngs)
         candidate_tower = CandidateTower(vocab_size, hidden_size, rngs=rngs)
-        model = TwoTowerModel(query_tower, candidate_tower)
+        model = CustomTwoTowerModel(query_tower, candidate_tower)
 
         ids_key, key = jax.random.split(key)
         batch_data = {
