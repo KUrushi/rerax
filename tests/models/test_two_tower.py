@@ -13,15 +13,16 @@ class TestTwoTowerModel:
                 self.candidate_tower = candidate_tower
 
             def __call__(self, batch: dict[str, chex.Array]) -> dict[str, chex.Array]:
-                query_ids = batch['query_ids']
-                candidate_ids = batch['candidate_ids']
+                query_ids = batch["query_ids"]
+                candidate_ids = batch["candidate_ids"]
 
                 query_embeddings = self.query_tower(query_ids)
                 candidate_embeddings = self.candidate_tower(candidate_ids)
                 return {
-                    "query_embedding": query_embeddings,
-                    "candidate_embeddings": candidate_embeddings
+                    "query_embeddings": query_embeddings,
+                    "candidate_embeddings": candidate_embeddings,
                 }
+
         class QueryTower(nnx.Module):
             def __init__(self, vocab_size: int, hidden_size, *, rngs: nnx.Rngs):
                 self._embedding = nnx.Embed(vocab_size, hidden_size, rngs=rngs)
